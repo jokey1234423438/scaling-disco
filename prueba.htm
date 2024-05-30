@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro e Inicio de Sesión y Calculadora de Resistencias</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            background-image: url('https://pixnio.com/free-images/2023/06/12/2023-06-12-10-42-51-1344x753.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            text-align: center;
+            width: 350px;
+            margin: 20px;
+            display: none; /* Inicialmente oculto */
+        }
+        .container.active {
+            display: block; /* Mostrar cuando tenga la clase 'active' */
+        }
+        .container h1 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+        .txt_field {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .txt_field input {
+            background: none;
+            border: none;
+            border-bottom: 2px solid #000;
+            outline: none;
+            padding: 10px;
+            width: 100%;
+        }
+        .txt_field label {
+            color: #666;
+            font-size: 14px;
+            left: 0;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: 0.3s ease;
+        }
+        .txt_field input:focus ~ label,
+        .txt_field input:valid ~ label {
+            color: #000;
+            font-size: 12px;
+            top: -10px;
+        }
+        .pass {
+            color: #666;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .pass:hover {
+            text-decoration: underline;
+        }
+        .btn, .toggle-btn {
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            padding: 12px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .btn:hover, .toggle-btn:hover {
+            background-color: #0056b3;
+        }
+        .mensaje {
+            color: #ff6b6b;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .calc-container {
+            display: none; /* Oculta inicialmente */
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        .calc-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid transparent; /* Añade un borde transparente por defecto */
+            border-radius: 4px;
+        }
+        .calc-container select:focus {
+            outline: none; /* Quita el contorno al hacer focus */
+        }
+        /* Añade colores a los bordes según la opción seleccionada */
+        #band1, #band2, #multiplier, #tolerance {
+            appearance: none; /* Elimina la apariencia por defecto */
+            -webkit-appearance: none; /* Para navegadores basados en WebKit */
+            -moz-appearance: none; /* Para navegadores basados en Gecko */
+            background-color: transparent; /* Fondo transparente */
+            padding: 10px; /* Espaciado interno */
+            border-radius: 4px; /* Bordes redondeados */
+            border: 2px solid transparent; /* Borde transparente */
+            cursor: pointer; /* Cursor de apuntar */
+        }
+        #band1::-ms-expand, #band2::-ms-expand, #multiplier::-ms-expand, #tolerance::-ms-expand {
+            display: none; /* Oculta la flecha de desplegar en Internet Explorer */
+        }
+        /* Define el color de fondo para cada opción */
+        #band1 option[value="1"],
+        #band2 option[value="1"] {
+            background-color: #8B4513; /* Marrón */
+        }
+        #multiplier option[value="10"],
+        #multiplier option[value="100"],
+        #multiplier option[value="1000"],
+        #multiplier option[value="10000"],
+        #multiplier option[value="100000"],
+        #multiplier option[value="1000000"],
+        #multiplier option[value="10000000"] {
+            background-color: #FF0000; /* Rojo */
+        }
+        #tolerance option[value="2"],
+        #tolerance option[value="5"],
+        #tolerance option[value="10"],
+        #tolerance option[value="20"] {
+            background-color: #FFA500; /* Naranja */
+        }
+        .calc-container button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .calc-container button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container register-container active">
+        <h1>Registro</h1>
+        <form id="registerForm">
+            <div class="txt_field">
+                <input type="text" id="newUsername" name="newUsername" required>
+                <label for="newUsername">Nuevo Usuario</label>
+            </div>
+            <div class="txt_field">
+                <input type="password" id="newPassword" name="newPassword" required>
+                <label for="newPassword">Nueva Contraseña</label>
+            </div>
+            <input type="submit" name="submit" class="btn" value="Registrarse">
+            <div class="mensaje" id="registerMessage"></div>
+        </form>
+        <button class="toggle-btn" onclick="toggleForms()">Iniciar Sesión</button>
+    </div>
+
+    <div class="container login-container">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <div class="txt_field">
+                <input type="text" id="username" name="username" required>
+                <label for="username">Usuario</label>
+            </div>
+            <div class="txt_field">
+                <input type="password" id="password" name="password" required>
+                <label for="password">Contraseña</label>
+            </div>
+            <div class="pass">¿Olvidaste tu contraseña?</div>
+            <input type="submit" name="submit" class="btn" value="Login">
+            <div class="mensaje" id="loginMessage"></div>
+        </form>
+        <button class="toggle-btn" onclick="toggleForms()">Registrarse</button>
+    </div>
+
+    <div class="calc-container" id="calcContainer">
+        <h2>Calculadora de Resistencias</h2>
+        <label for="band1">Banda 1</label>
+        <select id="band1">
+            <option value="0" style="background-color: #000000;">Negro (0)</option>
+            <option value="1" style="background-color: #8B4513;">Marrón (1)</option>
+            <option value="2" style="background-color: #FF0000;">Rojo (2)</option>
+            <option value="3" style="background-color: #FFA500;">Naranja (3)</option>
+            <option value="4" style="background-color: #FFFF00;">Amarillo (4)</option>
+            <option value="5" style="background-color: #008000;">Verde (5)</option>
+            <option value="6" style="background-color: #0000FF;">Azul (6)</option>
+            <option value="7" style="background-color: #8A2BE2;">Violeta (7)</option>
+            <option value="8" style="background-color: #808080;">Gris (8)</option>
+            <option value="9" style="background-color: #FFFFFF;">Blanco (9)</option>
+        </select>
+        <label for="band2">Banda 2</label>
+        <select id="band2">
+            <option value="0" style="background-color: #000000;">Negro (0)</option>
+            <option value="1" style="background-color: #8B4513;">Marrón (1)</option>
+            <option value="2" style="background-color: #FF0000;">Rojo (2)</option>
+            <option value="3" style="background-color: #FFA500;">Naranja (3)</option>
+            <option value="4" style="background-color: #FFFF00;">Amarillo (4)</option>
+            <option value="5" style="background-color: #008000;">Verde (5)</option>
+            <option value="6" style="background-color: #0000FF;">Azul (6)</option>
+            <option value="7" style="background-color: #8A2BE2;">Violeta (7)</option>
+            <option value="8" style="background-color: #808080;">Gris (8)</option>
+            <option value="9" style="background-color: #FFFFFF;">Blanco (9)</option>
+        </select>
+        <label for="multiplier">Multiplicador</label>
+        <select id="multiplier">
+            <option value="1" style="background-color: #000000;">Negro (x1)</option>
+            <option value="10" style="background-color: #8B4513;">Marrón (x10)</option>
+            <option value="100" style="background-color: #FF0000;">Rojo (x100)</option>
+            <option value="1000" style="background-color: #FFA500;">Naranja (x1000)</option>
+            <option value="10000" style="background-color: #FFFF00;">Amarillo (x10000)</option>
+            <option value="100000" style="background-color: #008000;">Verde (x100000)</option>
+            <option value="1000000" style="background-color: #0000FF;">Azul (x1000000)</option>
+            <option value="10000000" style="background-color: #8A2BE2;">Violeta (x10000000)</option>
+            <option value="100000000" style="background-color: #808080;">Gris (x100M)</option>
+            <option value="1000000000" style="background-color: #FFFFFF;">Blanco (x1G)</option>
+            <option value="0.1" style="background-color: #FFD700;">Dorado (x0.1)</option>
+            <option value="0.01" style="background-color: #C0C0C0;">Plateado (x0.01)</option>
+        </select>
+        <label for="tolerance">Tolerancia</label>
+        <select id="tolerance">
+            <option value="1" style="background-color: #8B4513;">Marrón (+/- 1%)</option>
+            <option value="2" style="background-color: #FF0000;">Rojo (+/- 2%)</option>
+            <option value="5" style="background-color: #FFD700;">Dorado (+/- 5%)</option>
+            <option value="10" style="background-color: #C0C0C0;">Plateado (+/- 10%)</option>
+            <option value="20" style="background-color: #808080;">Sin Banda (+/- 20%)</option>
+        </select>
+        <button onclick="calculateResistance()">Calcular Resistencia</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        function toggleForms() {
+            document.querySelector('.login-container').classList.toggle('active');
+            document.querySelector('.register-container').classList.toggle('active');
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const newUsername = document.getElementById('newUsername').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const registerMessage = document.getElementById('registerMessage');
+            if (newUsername && newPassword) {
+                localStorage.setItem(newUsername, newPassword);
+                registerMessage.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
+                registerMessage.style.color = '#28a745';
+                setTimeout(() => {
+                    toggleForms();
+                }, 2000); // Espera 2 segundos antes de cambiar al formulario de inicio de sesión
+            } else {
+                registerMessage.textContent = 'Por favor, completa todos los campos.';
+                registerMessage.style.color = '#ff6b6b';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginMessage = document.getElementById('loginMessage');
+            const storedPassword = localStorage.getItem(username);
+            if (storedPassword && storedPassword === password) {
+                loginMessage.textContent = '¡Bienvenido a tu cuenta!';
+                loginMessage.style.color = '#28a745';
+                setTimeout(() => {
+                    document.querySelector('.login-container').style.display = 'none';
+                    document.getElementById('calcContainer').style.display = 'block';
+                }, 2000); // Espera 2 segundos antes de mostrar la calculadora
+            } else {
+                loginMessage.textContent = 'Usuario o contraseña incorrectos';
+                loginMessage.style.color = '#ff6b6b';
+            }
+        });
+
+        function calculateResistance() {
+            const band1 = parseInt(document.getElementById('band1').value);
+            const band2 = parseInt(document.getElementById('band2').value);
+            const multiplier = parseFloat(document.getElementById('multiplier').value);
+            const tolerance = parseFloat(document.getElementById('tolerance').value);
+
+            const resistanceValue = ((band1 * 10) + band2) * multiplier;
+            const minResistance = resistanceValue - (resistanceValue * tolerance / 100);
+            const maxResistance = resistanceValue + (resistanceValue * tolerance / 100);
+
+            const formattedResistance = formatResistance(resistanceValue);
+            const formattedMin = formatResistance(minResistance);
+            const formattedMax = formatResistance(maxResistance);
+            
+            document.getElementById('result').innerHTML = `Resistencia: ${formattedResistance}, Tolerancia: +/- ${tolerance}%<br>Rango: ${formattedMin} - ${formattedMax}`;
+        }
+
+        function formatResistance(value) {
+            if (value >= 1e6) {
+                return (value / 1e6).toFixed(2) + ' MΩ';
+            } else if (value >= 1e3) {
+                return (value / 1e3).toFixed(2) + ' kΩ';
+            } else {
+                return value.toFixed(2) + ' Ω';
+            }
+        }
+    </script>
+</body>
+</html>
